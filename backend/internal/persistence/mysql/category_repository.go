@@ -1,4 +1,4 @@
-package postgres
+package mysql
 
 import (
 	"context"
@@ -9,64 +9,62 @@ import (
 	"ferreteria/internal/domain"
 )
 
-// CategoryRepository stores categories in PostgreSQL.
+// CategoryRepository stores categories in MySQL.
 type CategoryRepository struct {
 	database *sql.DB
 }
 
-// NewCategoryRepository builds the repository.
 func NewCategoryRepository(database *sql.DB) *CategoryRepository {
 	return &CategoryRepository{database: database}
 }
 
-// Create inserts a category and returns it with its identifier.
 func (r *CategoryRepository) Create(ctx context.Context, category *domain.Category) (*domain.Category, error) {
 	const statement = `
-		INSERT INTO category (name, type, created_at)
-		VALUES ($1, $2, $3)
-		RETURNING id`
+		INSERT INTO categories (name, type, created_at)
+		VALUES (?, ?, ?)`
 
-	err := r.database.QueryRowContext(
+	result, err := r.database.ExecContext(
 		ctx,
 		statement,
 		category.Name,
 		string(category.Type),
 		category.CreatedAt,
-	).Scan(&category.ID)
+	)
 	if err != nil {
 		return nil, fmt.Errorf("insert category: %w", err)
 	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, fmt.Errorf("read inserted category id: %w", err)
+	}
+	category.ID = id
 	return category, nil
 }
 
-// FindByID returns one category.
 func (r *CategoryRepository) FindByID(ctx context.Context, id int64) (*domain.Category, error) {
-	const query = `SELECT id, name, type, created_at FROM category WHERE id = $1`
+	const query = `SELECT id, name, type, created_at FROM categories WHERE id = ?`
 	return r.queryOne(ctx, query, id)
 }
 
-// FindByName returns one category by its unique name.
 func (r *CategoryRepository) FindByName(ctx context.Context, name string) (*domain.Category, error) {
-	const query = `SELECT id, name, type, created_at FROM category WHERE name = $1`
+	const query = `SELECT id, name, type, created_at FROM categories WHERE name = ?`
 	return r.queryOne(ctx, query, name)
 }
 
-// ListByType returns the categories of one type.
 func (r *CategoryRepository) ListByType(
 	ctx context.Context,
 	categoryType domain.CategoryType,
 ) ([]*domain.Category, error) {
 	const query = `
 		SELECT id, name, type, created_at
-		FROM category
-		WHERE type = $1
+		FROM categories
+		WHERE type = ?
 		ORDER BY name`
 	return r.queryMany(ctx, query, string(categoryType))
 }
 
-// ListAll returns every category ordered by name.
 func (r *CategoryRepository) ListAll(ctx context.Context) ([]*domain.Category, error) {
-	const query = `SELECT id, name, type, created_at FROM category ORDER BY name`
+	const query = `SELECT id, name, type, created_at FROM categories ORDER BY name`
 	return r.queryMany(ctx, query)
 }
 

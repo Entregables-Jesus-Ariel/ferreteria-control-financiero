@@ -1,4 +1,4 @@
-package postgres
+package mysql
 
 import (
 	"context"
@@ -9,31 +9,28 @@ import (
 	"ferreteria/internal/domain"
 )
 
-// UserRepository reads user accounts from PostgreSQL.
+// UserRepository reads user accounts from MySQL.
 type UserRepository struct {
 	database *sql.DB
 }
 
-// NewUserRepository builds the repository.
 func NewUserRepository(database *sql.DB) *UserRepository {
 	return &UserRepository{database: database}
 }
 
-// FindByUsername returns the account matching a username.
 func (r *UserRepository) FindByUsername(ctx context.Context, username string) (*domain.User, error) {
 	const query = `
 		SELECT id, username, password_hash, role, created_at, updated_at
-		FROM "user"
-		WHERE username = $1`
+		FROM users
+		WHERE username = ?`
 	return r.queryOne(ctx, query, username)
 }
 
-// FindByID returns the account matching an identifier.
 func (r *UserRepository) FindByID(ctx context.Context, id int64) (*domain.User, error) {
 	const query = `
 		SELECT id, username, password_hash, role, created_at, updated_at
-		FROM "user"
-		WHERE id = $1`
+		FROM users
+		WHERE id = ?`
 	return r.queryOne(ctx, query, id)
 }
 
