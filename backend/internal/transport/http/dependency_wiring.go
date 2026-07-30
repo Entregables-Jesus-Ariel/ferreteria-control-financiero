@@ -5,7 +5,7 @@ import (
 
 	"ferreteria/internal/application/usecase"
 	"ferreteria/internal/config"
-	"ferreteria/internal/persistence/postgres"
+	"ferreteria/internal/persistence/mysql"
 	"ferreteria/internal/security"
 )
 
@@ -25,15 +25,15 @@ type dependencies struct {
 
 // buildDependencies opens persistence and composes the use cases.
 func buildDependencies(settings config.Config) (*dependencies, error) {
-	database, err := postgres.Open(settings)
+	database, err := mysql.Open(settings)
 	if err != nil {
 		return nil, err
 	}
 
-	movements := postgres.NewMovementRepository(database)
-	categories := postgres.NewCategoryRepository(database)
-	users := postgres.NewUserRepository(database)
-	audits := postgres.NewMovementAuditRepository(database)
+	movements := mysql.NewMovementRepository(database)
+	categories := mysql.NewCategoryRepository(database)
+	users := mysql.NewUserRepository(database)
+	audits := mysql.NewMovementAuditRepository(database)
 
 	hasher := security.NewBcryptHasher(0)
 	tokens := security.NewJWTTokenService(settings.TokenSecret)

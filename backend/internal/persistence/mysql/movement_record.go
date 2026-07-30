@@ -1,15 +1,14 @@
-package postgres
+package mysql
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"ferreteria/internal/domain"
 )
 
-// movementRecord is the persistence shape of a movement row. It exists so
-// the domain entity never carries database concerns such as nullable
-// columns or driver types.
+// movementRecord is the persistence shape of a movement row.
 type movementRecord struct {
 	ID          int64
 	UserID      int64
@@ -22,7 +21,6 @@ type movementRecord struct {
 	CancelledAt sql.NullTime
 }
 
-// toDomain converts a persisted row into a domain entity.
 func (r movementRecord) toDomain() *domain.Movement {
 	movement := &domain.Movement{
 		ID:         r.ID,
@@ -43,7 +41,6 @@ func (r movementRecord) toDomain() *domain.Movement {
 	return movement
 }
 
-// noteValue converts an optional note into a nullable column value.
 func noteValue(note string) sql.NullString {
 	if note == "" {
 		return sql.NullString{}
@@ -51,10 +48,26 @@ func noteValue(note string) sql.NullString {
 	return sql.NullString{String: note, Valid: true}
 }
 
-// cancelledValue converts an optional cancellation into a nullable column.
 func cancelledValue(cancelledAt *time.Time) sql.NullTime {
 	if cancelledAt == nil {
 		return sql.NullTime{}
 	}
 	return sql.NullTime{Time: *cancelledAt, Valid: true}
+}
+
+// centsToDecimalString renders integer cents as a fixed 2-decimal string
+// (ej. 123456 -> "1234.56") para que el monto llegue a la columna DECIMAL
+// de MySQL como texto exacto, no como float64 con riesgo de redondeo.
+func centsToDecimalString(cents int64) string {
+	negative := cents < 0
+	if negative {
+		cents = -cents
+	}
+	whole := cents / 100
+	fraction := cents % 100
+	result := fmt.Sprintf("%d.%02d", whole, fraction)
+	if negative {
+		result = "-" + result
+	}
+	return result
 }

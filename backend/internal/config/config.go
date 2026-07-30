@@ -28,19 +28,19 @@ type Config struct {
 
 // Load reads configuration from the environment and validates it.
 func Load() (Config, error) {
-	host, err := requiredEnv("POSTGRES_HOST")
+	host, err := requiredEnv("MYSQL_HOST")
 	if err != nil {
 		return Config{}, err
 	}
-	name, err := requiredEnv("POSTGRES_DB")
+	name, err := requiredEnv("MYSQL_DB")
 	if err != nil {
 		return Config{}, err
 	}
-	user, err := requiredEnv("POSTGRES_USER")
+	user, err := requiredEnv("MYSQL_USER")
 	if err != nil {
 		return Config{}, err
 	}
-	password, err := requiredEnv("POSTGRES_PASSWORD")
+	password, err := requiredEnv("MYSQL_PASSWORD")
 	if err != nil {
 		return Config{}, err
 	}
@@ -51,7 +51,7 @@ func Load() (Config, error) {
 
 	return Config{
 		DatabaseHost:     host,
-		DatabasePort:     intEnv("POSTGRES_PORT", 5432),
+		DatabasePort:     intEnv("MYSQL_PORT", 3306),
 		DatabaseName:     name,
 		DatabaseUser:     user,
 		DatabasePassword: password,

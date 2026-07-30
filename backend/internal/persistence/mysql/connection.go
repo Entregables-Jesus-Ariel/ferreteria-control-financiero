@@ -1,18 +1,17 @@
-// Package postgres implements the application repository ports on top of
-// PostgreSQL. It owns SQL and driver details so no other layer does.
-package postgres
+// Package mysql implements the application repository ports on top of
+// MySQL. It owns SQL and driver details so no other layer does.
+package mysql
 
 import (
 	"database/sql"
 	"fmt"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/go-sql-driver/mysql"
 
 	"ferreteria/internal/config"
 )
 
-// Pool settings bound how many connections the backend may hold open.
 const (
 	maxOpenConnections = 25
 	maxIdleConnections = 5
@@ -21,17 +20,21 @@ const (
 
 // Open builds a connection pool from validated configuration. Credentials
 // come from config, never from literals in this package.
+//
+// clientFoundRows=true makes UPDATE report matched rows (not changed rows)
+// in RowsAffected — sin esto, un update legítimo cuyo valor nuevo coincide
+// con el viejo se leería erróneamente como "movement not found".
 func Open(settings config.Config) (*sql.DB, error) {
 	dataSource := fmt.Sprintf(
-		"host=%s port=%d dbname=%s user=%s password=%s sslmode=disable",
+		"%s:%s@tcp(%s:%d)/%s?parseTime=true&multiStatements=true&clientFoundRows=true&loc=UTC",
+		settings.DatabaseUser,
+		settings.DatabasePassword,
 		settings.DatabaseHost,
 		settings.DatabasePort,
 		settings.DatabaseName,
-		settings.DatabaseUser,
-		settings.DatabasePassword,
 	)
 
-	database, err := sql.Open("postgres", dataSource)
+	database, err := sql.Open("mysql", dataSource)
 	if err != nil {
 		return nil, fmt.Errorf("open database connection: %w", err)
 	}

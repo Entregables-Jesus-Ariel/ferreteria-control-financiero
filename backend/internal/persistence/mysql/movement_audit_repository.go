@@ -1,4 +1,4 @@
-package postgres
+package mysql
 
 import (
 	"context"
@@ -14,45 +14,41 @@ type MovementAuditRepository struct {
 	database *sql.DB
 }
 
-// NewMovementAuditRepository builds the repository.
 func NewMovementAuditRepository(database *sql.DB) *MovementAuditRepository {
 	return &MovementAuditRepository{database: database}
 }
 
-// Append stores one audit entry.
 func (r *MovementAuditRepository) Append(ctx context.Context, entry *domain.MovementAudit) error {
 	const statement = `
 		INSERT INTO movement_audit (
 			movement_id, changed_at, changed_by,
 			old_amount, new_amount, old_note, new_note, action
 		)
-		VALUES (
-			$1, $2, $3,
-			CASE WHEN $4::bigint IS NULL THEN NULL ELSE $4::numeric / 100 END,
-			CASE WHEN $5::bigint IS NULL THEN NULL ELSE $5::numeric / 100 END,
-			$6, $7, $8
-		)
-		RETURNING id`
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 
-	err := r.database.QueryRowContext(
+	result, err := r.database.ExecContext(
 		ctx,
 		statement,
 		entry.MovementID,
 		entry.ChangedAt,
 		entry.ChangedBy,
-		amountCentsValue(entry.OldAmount),
-		amountCentsValue(entry.NewAmount),
+		amountDecimalValue(entry.OldAmount),
+		amountDecimalValue(entry.NewAmount),
 		noteValue(optionalString(entry.OldNote)),
 		noteValue(optionalString(entry.NewNote)),
 		string(entry.Action),
-	).Scan(&entry.ID)
+	)
 	if err != nil {
 		return fmt.Errorf("insert movement audit: %w", err)
 	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("read inserted audit id: %w", err)
+	}
+	entry.ID = id
 	return nil
 }
 
-// ListByMovement returns the audit trail of one movement.
 func (r *MovementAuditRepository) ListByMovement(
 	ctx context.Context,
 	movementID int64,
@@ -60,7 +56,7 @@ func (r *MovementAuditRepository) ListByMovement(
 	const query = `
 		SELECT id, movement_id, changed_at, changed_by, action
 		FROM movement_audit
-		WHERE movement_id = $1
+		WHERE movement_id = ?
 		ORDER BY changed_at, id`
 
 	rows, err := r.database.QueryContext(ctx, query, movementID)
@@ -85,11 +81,11 @@ func (r *MovementAuditRepository) ListByMovement(
 	return entries, nil
 }
 
-func amountCentsValue(amount *domain.Amount) sql.NullInt64 {
+func amountDecimalValue(amount *domain.Amount) sql.NullString {
 	if amount == nil {
-		return sql.NullInt64{}
+		return sql.NullString{}
 	}
-	return sql.NullInt64{Int64: amount.Cents(), Valid: true}
+	return sql.NullString{String: centsToDecimalString(amount.Cents()), Valid: true}
 }
 
 func optionalString(value *string) string {

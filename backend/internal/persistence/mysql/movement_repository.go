@@ -1,4 +1,4 @@
-package postgres
+package mysql
 
 import (
 	"context"
@@ -10,59 +10,60 @@ import (
 	"ferreteria/internal/domain"
 )
 
-// MovementRepository stores movements in PostgreSQL. Every statement is
+// MovementRepository stores movements in MySQL. Every statement is
 // parameterized, so user input never reaches the query text.
 type MovementRepository struct {
 	database *sql.DB
 }
 
-// NewMovementRepository builds the repository.
 func NewMovementRepository(database *sql.DB) *MovementRepository {
 	return &MovementRepository{database: database}
 }
 
-// Create inserts a movement and returns it with its generated identifier.
 func (r *MovementRepository) Create(ctx context.Context, movement *domain.Movement) (*domain.Movement, error) {
 	const statement = `
-		INSERT INTO movement (user_id, category_id, date, amount, note, created_at, updated_at)
-		VALUES ($1, $2, $3, $4::numeric / 100, $5, $6, $7)
-		RETURNING id`
+		INSERT INTO movements (user_id, category_id, date, amount, note, created_at, updated_at)
+		VALUES (?, ?, ?, ?, ?, ?, ?)`
 
-	err := r.database.QueryRowContext(
+	result, err := r.database.ExecContext(
 		ctx,
 		statement,
 		movement.UserID,
 		movement.CategoryID,
 		movement.Date,
-		movement.Amount.Cents(),
+		centsToDecimalString(movement.Amount.Cents()),
 		noteValue(movement.Note),
 		movement.CreatedAt,
 		movement.UpdatedAt,
-	).Scan(&movement.ID)
+	)
 	if err != nil {
 		return nil, fmt.Errorf("insert movement: %w", err)
 	}
+	id, err := result.LastInsertId()
+	if err != nil {
+		return nil, fmt.Errorf("read inserted movement id: %w", err)
+	}
+	movement.ID = id
 	return movement, nil
 }
 
-// Update writes the current state of a movement, including cancellation.
 func (r *MovementRepository) Update(ctx context.Context, movement *domain.Movement) error {
 	const statement = `
-		UPDATE movement
-		SET category_id = $2, date = $3, amount = $4::numeric / 100,
-		    note = $5, updated_at = $6, cancelled_at = $7
-		WHERE id = $1`
+		UPDATE movements
+		SET category_id = ?, date = ?, amount = ?,
+		    note = ?, updated_at = ?, cancelled_at = ?
+		WHERE id = ?`
 
 	result, err := r.database.ExecContext(
 		ctx,
 		statement,
-		movement.ID,
 		movement.CategoryID,
 		movement.Date,
-		movement.Amount.Cents(),
+		centsToDecimalString(movement.Amount.Cents()),
 		noteValue(movement.Note),
 		movement.UpdatedAt,
 		cancelledValue(movement.CancelledAt),
+		movement.ID,
 	)
 	if err != nil {
 		return fmt.Errorf("update movement: %w", err)
@@ -77,13 +78,12 @@ func (r *MovementRepository) Update(ctx context.Context, movement *domain.Moveme
 	return nil
 }
 
-// FindByID returns one movement.
 func (r *MovementRepository) FindByID(ctx context.Context, id int64) (*domain.Movement, error) {
 	const query = `
-		SELECT id, user_id, category_id, date, (amount * 100)::bigint,
+		SELECT id, user_id, category_id, date, CAST(amount * 100 AS SIGNED),
 		       note, created_at, updated_at, cancelled_at
-		FROM movement
-		WHERE id = $1`
+		FROM movements
+		WHERE id = ?`
 
 	var record movementRecord
 	err := r.database.QueryRowContext(ctx, query, id).Scan(
@@ -106,23 +106,23 @@ func (r *MovementRepository) FindByID(ctx context.Context, id int64) (*domain.Mo
 	return record.toDomain(), nil
 }
 
-// List returns the movements of a period, newest first.
 func (r *MovementRepository) List(ctx context.Context, filter port.MovementFilter) ([]*domain.Movement, error) {
 	const query = `
-		SELECT id, user_id, category_id, date, (amount * 100)::bigint,
+		SELECT id, user_id, category_id, date, CAST(amount * 100 AS SIGNED),
 		       note, created_at, updated_at, cancelled_at
-		FROM movement
-		WHERE date BETWEEN $1 AND $2
-		  AND ($3 = 0 OR category_id = $3)
-		  AND ($4 OR cancelled_at IS NULL)
+		FROM movements
+		WHERE date BETWEEN ? AND ?
+		  AND (? = 0 OR category_id = ?)
+		  AND (? OR cancelled_at IS NULL)
 		ORDER BY date DESC, id DESC
-		LIMIT $5 OFFSET $6`
+		LIMIT ? OFFSET ?`
 
 	rows, err := r.database.QueryContext(
 		ctx,
 		query,
 		filter.Period.Start,
 		filter.Period.End,
+		filter.CategoryID,
 		filter.CategoryID,
 		filter.IncludeCancelled,
 		filter.Limit,
@@ -157,19 +157,17 @@ func (r *MovementRepository) List(ctx context.Context, filter port.MovementFilte
 	return movements, nil
 }
 
-// TotalsByCategoryType aggregates amounts per category type, excluding
-// cancelled movements so they never affect a balance.
 func (r *MovementRepository) TotalsByCategoryType(
 	ctx context.Context,
 	period domain.Period,
 ) ([]port.CategoryTotal, error) {
 	const query = `
-		SELECT category.type, COALESCE(SUM(movement.amount) * 100, 0)::bigint
-		FROM movement
-		JOIN category ON category.id = movement.category_id
-		WHERE movement.date BETWEEN $1 AND $2
-		  AND movement.cancelled_at IS NULL
-		GROUP BY category.type`
+		SELECT categories.type, CAST(COALESCE(SUM(movements.amount) * 100, 0) AS SIGNED)
+		FROM movements
+		JOIN categories ON categories.id = movements.category_id
+		WHERE movements.date BETWEEN ? AND ?
+		  AND movements.cancelled_at IS NULL
+		GROUP BY categories.type`
 
 	rows, err := r.database.QueryContext(ctx, query, period.Start, period.End)
 	if err != nil {
