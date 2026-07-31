@@ -1,0 +1,106 @@
+.categorias-container {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.filtros {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.filtros button {
+  padding: 6px 14px;
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.filtros button.active {
+  background: #1976d2;
+  color: #fff;
+  border-color: #1976d2;
+}
+
+.hint {
+  color: #666;
+  font-size: 13px;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 13px;
+}
+
+.lista-categorias {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+}
+
+.lista-categorias li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.badge.income { background: #2e7d32; }
+.badge.expense { background: #c62828; }
+
+.form-categoria {
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.form-categoria h2 {
+  font-size: 16px;
+  margin: 0 0 12px;
+}
+
+.form-categoria label {
+  font-size: 13px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+.form-categoria input,
+.form-categoria select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.form-categoria button {
+  margin-top: 16px;
+  padding: 10px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.form-categoria button:disabled {
+  background: #a0a0a0;
+  cursor: not-allowed;
+}
