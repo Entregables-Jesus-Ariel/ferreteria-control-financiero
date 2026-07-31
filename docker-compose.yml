@@ -22,8 +22,8 @@ services:
     working_dir: /workspace
     volumes: ["./database:/workspace"]
     entrypoint: ["liquibase", "--changeLogFile=changelog/db.changelog-master.yaml",
-                 "--url=jdbc:mysql://mysql:3306/${MYSQL_DB}",
-                 "--username=${MYSQL_USER}", "--password=${MYSQL_PASSWORD}"]
+                 "--url=jdbc:mysql://mysql:3306/${MYSQL_DB}", "--driver=com.mysql.cj.jdbc.Driver",
+                 "--username=root", "--password=${MYSQL_ROOT_PASSWORD}"]
 
   backend:
     build: ./backend

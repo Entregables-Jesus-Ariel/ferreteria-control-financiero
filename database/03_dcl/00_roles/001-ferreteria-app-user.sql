@@ -1,0 +1,3 @@
+CREATE USER IF NOT EXISTS 'ferreteria_app'@'%' IDENTIFIED BY 'FerreteriaApp#2026';
+GRANT SELECT, INSERT, UPDATE, DELETE ON *.* TO 'ferreteria_app'@'%';
+FLUSH PRIVILEGES;
