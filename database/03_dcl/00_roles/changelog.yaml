@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-ferreteria-app-user
+      author: vanessaperdomo
+      changes:
+        - sqlFile:
+            path: 001-ferreteria-app-user.sql
+            relativeToChangelogFile: true
+      rollback:
+        sqlFile:
+          path: ../../05_rollbacks/03_dcl/00_roles/001-ferreteria-app-user.rollback.sql
+          relativeToChangelogFile: true
