@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/login/login.component';
 import { authGuard } from './auth/auth.guard';
 import { CategoriasComponent } from './categorias/categorias.component';
+import { RegistrarIngresoComponent } from './movimientos/registrar-ingreso/registrar-ingreso.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -9,7 +10,8 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     children: [
-      { path: 'categorias', component: CategoriasComponent }
+      { path: 'categorias', component: CategoriasComponent },
+      { path: 'movimientos/ingreso', component: RegistrarIngresoComponent }
     ]
   }
 ];
