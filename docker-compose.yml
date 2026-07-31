@@ -13,7 +13,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-
   liquibase-ferreteria:
     build: ./database
     profiles: [tooling]
@@ -24,7 +23,6 @@ services:
     entrypoint: ["liquibase", "--changeLogFile=changelog/db.changelog-master.yaml",
                  "--url=jdbc:mysql://mysql:3306/${MYSQL_DB}", "--driver=com.mysql.cj.jdbc.Driver",
                  "--username=root", "--password=${MYSQL_ROOT_PASSWORD}"]
-
   backend:
     build: ./backend
     depends_on:
@@ -37,6 +35,13 @@ services:
       MYSQL_USER: ${MYSQL_USER}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       APP_TOKEN_SECRET: ${APP_TOKEN_SECRET}
-
+  frontend:
+    build: ./frontend
+    ports: ["4200:4200"]
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
 volumes:
   mysql_data:
