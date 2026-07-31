@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-fks
+      author: vanessaperdomo
+      changes:
+        - sqlFile:
+            path: 001-fks.sql
+            relativeToChangelogFile: true
+      rollback:
+        sqlFile:
+          path: ../../../05_rollbacks/01_ddl/04_constraints/001-fks.rollback.sql
+          relativeToChangelogFile: true
