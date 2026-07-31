@@ -1,0 +1,32 @@
+<div class="categorias-container">
+  <h1>Categorías</h1>
+
+  <div class="filtros">
+    <button [class.active]="filtro() === 'all'" (click)="cambiarFiltro('all')">Todas</button>
+    <button [class.active]="filtro() === 'income'" (click)="cambiarFiltro('income')">Ingresos</button>
+    <button [class.active]="filtro() === 'expense'" (click)="cambiarFiltro('expense')">Egresos</button>
+  </div>
+
+  @if (loading()) {
+    <p class="hint">Cargando...</p>
+  }
+
+  @if (errorMsg()) {
+    <p class="error">{{ errorMsg() }}</p>
+  }
+
+  @if (!loading() && categorias().length === 0) {
+    <p class="hint">No hay categorías para mostrar.</p>
+  }
+
+  <ul class="lista-categorias">
+    @for (categoria of categorias(); track categoria.id) {
+      <li>
+        <span class="nombre">{{ categoria.name }}</span>
+        <span class="badge" [class.income]="categoria.type === 'income'" [class.expense]="categoria.type === 'expense'">
+          {{ categoria.type === 'income' ? 'Ingreso' : 'Egreso' }}
+        </span>
+      </li>
+    }
+  </ul>
+</div>
