@@ -1,0 +1,45 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-users
+      author: vanessaperdomo
+      changes:
+        - sqlFile:
+            path: 001-users.sql
+            relativeToChangelogFile: true
+      rollback:
+        sqlFile:
+          path: ../../../05_rollbacks/01_ddl/03_tables/001-users.rollback.sql
+          relativeToChangelogFile: true
+  - changeSet:
+      id: 002-categories
+      author: vanessaperdomo
+      changes:
+        - sqlFile:
+            path: 002-categories.sql
+            relativeToChangelogFile: true
+      rollback:
+        sqlFile:
+          path: ../../../05_rollbacks/01_ddl/03_tables/002-categories.rollback.sql
+          relativeToChangelogFile: true
+  - changeSet:
+      id: 003-movements
+      author: vanessaperdomo
+      changes:
+        - sqlFile:
+            path: 003-movements.sql
+            relativeToChangelogFile: true
+      rollback:
+        sqlFile:
+          path: ../../../05_rollbacks/01_ddl/03_tables/003-movements.rollback.sql
+          relativeToChangelogFile: true
+  - changeSet:
+      id: 004-movement_audit
+      author: vanessaperdomo
+      changes:
+        - sqlFile:
+            path: 004-movement_audit.sql
+            relativeToChangelogFile: true
+      rollback:
+        sqlFile:
+          path: ../../../05_rollbacks/01_ddl/03_tables/004-movement_audit.rollback.sql
+          relativeToChangelogFile: true

@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-seed-categories
+      author: vanessaperdomo
+      changes:
+        - sqlFile:
+            path: 001-seed-categories.sql
+            relativeToChangelogFile: true
+      rollback:
+        sqlFile:
+          path: ../../05_rollbacks/02_dml/00_inserts/001-seed-categories.rollback.sql
+          relativeToChangelogFile: true
+  - changeSet:
+      id: 002-seed-admin-user
+      author: vanessaperdomo
+      changes:
+        - sqlFile:
+            path: 002-seed-admin-user.sql
+            relativeToChangelogFile: true
+      rollback:
+        sqlFile:
+          path: ../../05_rollbacks/02_dml/00_inserts/002-seed-admin-user.rollback.sql
+          relativeToChangelogFile: true
