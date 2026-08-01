@@ -1,6 +1,6 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MovimientoService } from '../movimiento.service';
 import { Movement } from '../movimiento.model';
@@ -29,6 +29,7 @@ export class ListadoComponent implements OnInit {
   private movimientoService = inject(MovimientoService);
   private categoriaService = inject(CategoriaService);
   private router = inject(Router);
+  private route = inject(ActivatedRoute);
 
   movimientos = signal<Movement[]>([]);
   categorias = signal<Category[]>([]);
@@ -50,15 +51,38 @@ export class ListadoComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    const query = this.route.snapshot.queryParamMap;
+    const start = query.get('start');
+    const end = query.get('end');
+    const categoryId = query.get('category_id');
+
+    this.filtros.patchValue({
+      start: start ?? primerDiaDelMes(),
+      end: end ?? hoyISO(),
+      categoryId: categoryId ? Number(categoryId) : null
+    });
+
     this.categoriaService.list().subscribe({
       next: (categorias) => this.categorias.set(categorias)
     });
+
     this.buscar();
   }
 
   buscar(): void {
     const { start, end, categoryId } = this.filtros.value;
     if (!start || !end) return;
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        start,
+        end,
+        category_id: categoryId ?? null
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
 
     this.loading.set(true);
     this.errorMsg.set(null);
@@ -92,6 +116,14 @@ export class ListadoComponent implements OnInit {
   }
 
   verDetalle(movimiento: Movement): void {
-    this.router.navigate(['/movimientos/detalle', movimiento.id], { state: { movimiento } });
+    const { start, end, categoryId } = this.filtros.value;
+    this.router.navigate(['/movimientos/detalle', movimiento.id], {
+      state: { movimiento },
+      queryParams: {
+        start,
+        end,
+        category_id: categoryId ?? null
+      }
+    });
   }
 }
