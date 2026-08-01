@@ -1,0 +1,72 @@
+<div class="listado-container">
+  <h1>Movimientos</h1>
+
+  <form [formGroup]="filtros" (ngSubmit)="buscar()" class="filtros-form">
+    <div class="campo">
+      <label for="start">Desde</label>
+      <input id="start" type="date" formControlName="start" />
+    </div>
+
+    <div class="campo">
+      <label for="end">Hasta</label>
+      <input id="end" type="date" formControlName="end" />
+    </div>
+
+    <div class="campo">
+      <label for="categoryId">Categoría</label>
+      <select id="categoryId" formControlName="categoryId">
+        <option [ngValue]="null">Todas</option>
+        @for (categoria of categorias(); track categoria.id) {
+          <option [ngValue]="categoria.id">{{ categoria.name }}</option>
+        }
+      </select>
+    </div>
+
+    <button type="submit">Filtrar</button>
+  </form>
+
+  @if (loading()) {
+    <p class="hint">Cargando...</p>
+  }
+
+  @if (errorMsg()) {
+    <p class="error">{{ errorMsg() }}</p>
+  }
+
+  @if (!loading() && movimientos().length === 0) {
+    <p class="hint">No hay movimientos en el periodo seleccionado.</p>
+  }
+
+  @if (movimientos().length > 0) {
+    <table class="tabla-movimientos">
+      <thead>
+        <tr>
+          <th>Fecha</th>
+          <th>Categoría</th>
+          <th>Valor</th>
+          <th>Nota</th>
+          <th>Estado</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (movimiento of movimientos(); track movimiento.id) {
+          <tr [class.cancelado]="movimiento.cancelled">
+            <td>{{ movimiento.date }}</td>
+            <td>
+              <span class="badge" [class.income]="esIngreso(movimiento.category_id)" [class.expense]="!esIngreso(movimiento.category_id)">
+                {{ nombreCategoria(movimiento.category_id) }}
+              </span>
+            </td>
+            <td>{{ formatearValor(movimiento.amount_cents) }}</td>
+            <td>{{ movimiento.note }}</td>
+            <td>{{ movimiento.cancelled ? 'Anulado' : 'Activo' }}</td>
+            <td>
+              <button type="button" class="link" (click)="verDetalle(movimiento)">Ver detalle</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
