@@ -1,0 +1,38 @@
+<div class="resumen-container">
+  <h1>Resumen financiero</h1>
+
+  <div class="selector-periodo">
+    <button [class.active]="granularidad() === 'daily'" (click)="seleccionarGranularidad('daily')">Día</button>
+    <button [class.active]="granularidad() === 'weekly'" (click)="seleccionarGranularidad('weekly')">Semana</button>
+    <button [class.active]="granularidad() === 'monthly'" (click)="seleccionarGranularidad('monthly')">Mes</button>
+  </div>
+
+  @if (loading()) {
+    <p class="hint">Cargando...</p>
+  }
+
+  @if (errorMsg()) {
+    <p class="error">{{ errorMsg() }}</p>
+  }
+
+  @if (resumen(); as r) {
+    <p class="rango">{{ r.start }} — {{ r.end }}</p>
+
+    <div class="cards">
+      <div class="card income">
+        <span class="etiqueta">Ingresos</span>
+        <span class="valor">{{ formatearValor(r.total_income_cents) }}</span>
+      </div>
+      <div class="card expense">
+        <span class="etiqueta">Egresos</span>
+        <span class="valor">{{ formatearValor(r.total_expense_cents) }}</span>
+      </div>
+      <div class="card net" [class.negativo]="r.net_cents < 0">
+        <span class="etiqueta">Saldo neto</span>
+        <span class="valor">{{ formatearValor(r.net_cents) }}</span>
+      </div>
+    </div>
+  } @else if (!loading()) {
+    <p class="hint">Sin datos para mostrar todavía.</p>
+  }
+</div>
