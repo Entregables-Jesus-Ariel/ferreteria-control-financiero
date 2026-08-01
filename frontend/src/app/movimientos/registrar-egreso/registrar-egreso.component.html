@@ -1,0 +1,45 @@
+<div class="egreso-container">
+  <h1>Registrar egreso</h1>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <label for="date">Fecha</label>
+    <input id="date" type="date" formControlName="date" />
+    @if (form.get('date')?.touched && form.get('date')?.invalid) {
+      <p class="error">La fecha es obligatoria</p>
+    }
+
+    <label for="categoryId">Categoría</label>
+    <select id="categoryId" formControlName="categoryId">
+      <option [ngValue]="null" disabled>Selecciona una categoría</option>
+      @for (categoria of categorias(); track categoria.id) {
+        <option [ngValue]="categoria.id">{{ categoria.name }}</option>
+      }
+    </select>
+    @if (loadingCategorias()) {
+      <p class="hint">Cargando categorías...</p>
+    }
+    @if (form.get('categoryId')?.touched && form.get('categoryId')?.invalid) {
+      <p class="error">Selecciona una categoría</p>
+    }
+
+    <label for="amount">Valor</label>
+    <input id="amount" type="number" min="1" step="1" formControlName="amount" placeholder="Ej. 120000" />
+    @if (form.get('amount')?.touched && form.get('amount')?.invalid) {
+      <p class="error">Ingresa un valor mayor a 0</p>
+    }
+
+    <label for="note">Nota</label>
+    <textarea id="note" formControlName="note" rows="3" placeholder="Ej. Reposición de tornillería"></textarea>
+
+    @if (successMsg()) {
+      <p class="success">{{ successMsg() }}</p>
+    }
+    @if (errorMsg()) {
+      <p class="error">{{ errorMsg() }}</p>
+    }
+
+    <button type="submit" [disabled]="guardando()">
+      {{ guardando() ? 'Guardando...' : 'Registrar egreso' }}
+    </button>
+  </form>
+</div>
