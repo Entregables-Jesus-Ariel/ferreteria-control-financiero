@@ -61,8 +61,9 @@
             <td>{{ formatearValor(movimiento.amount_cents) }}</td>
             <td>{{ movimiento.note }}</td>
             <td>{{ movimiento.cancelled ? 'Anulado' : 'Activo' }}</td>
-            <td>
+            <td class="acciones">
               <button type="button" class="link" (click)="verDetalle(movimiento)">Ver detalle</button>
+              <button type="button" class="link" (click)="editar(movimiento)">Editar</button>
             </td>
           </tr>
         }

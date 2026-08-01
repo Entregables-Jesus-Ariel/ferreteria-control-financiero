@@ -6,6 +6,7 @@ import { RegistrarIngresoComponent } from './movimientos/registrar-ingreso/regis
 import { RegistrarEgresoComponent } from './movimientos/registrar-egreso/registrar-egreso.component';
 import { ListadoComponent } from './movimientos/listado/listado.component';
 import { DetalleComponent } from './movimientos/detalle/detalle.component';
+import { EditarComponent } from './movimientos/editar/editar.component';
 import { ResumenComponent } from './resumen/resumen.component';
 
 export const routes: Routes = [
@@ -18,6 +19,7 @@ export const routes: Routes = [
       { path: 'movimientos/ingreso', component: RegistrarIngresoComponent },
       { path: 'movimientos/egreso', component: RegistrarEgresoComponent },
       { path: 'movimientos/detalle/:id', component: DetalleComponent },
+      { path: 'movimientos/editar/:id', component: EditarComponent },
       { path: 'movimientos', component: ListadoComponent },
       { path: 'resumen', component: ResumenComponent }
     ]
