@@ -115,15 +115,22 @@ export class ListadoComponent implements OnInit {
     return (cents / 100).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
   }
 
-  verDetalle(movimiento: Movement): void {
+  private queryParamsActuales() {
     const { start, end, categoryId } = this.filtros.value;
+    return { start, end, category_id: categoryId ?? null };
+  }
+
+  verDetalle(movimiento: Movement): void {
     this.router.navigate(['/movimientos/detalle', movimiento.id], {
       state: { movimiento },
-      queryParams: {
-        start,
-        end,
-        category_id: categoryId ?? null
-      }
+      queryParams: this.queryParamsActuales()
+    });
+  }
+
+  editar(movimiento: Movement): void {
+    this.router.navigate(['/movimientos/editar', movimiento.id], {
+      state: { movimiento },
+      queryParams: this.queryParamsActuales()
     });
   }
 }
