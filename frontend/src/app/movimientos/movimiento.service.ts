@@ -42,4 +42,8 @@ export class MovimientoService {
 
     return this.http.get<Movement[]>(this.baseUrl, { params: httpParams });
   }
+
+  anular(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
 }
