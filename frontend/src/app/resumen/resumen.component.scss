@@ -1,0 +1,72 @@
+.resumen-container {
+  max-width: 700px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.selector-periodo {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+}
+
+.selector-periodo button {
+  padding: 6px 14px;
+  border: 1px solid #ccc;
+  border-radius: 16px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.selector-periodo button.active {
+  background: #1976d2;
+  color: #fff;
+  border-color: #1976d2;
+}
+
+.rango {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 12px;
+}
+
+.hint {
+  color: #666;
+  font-size: 13px;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 13px;
+}
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.card .etiqueta {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.card .valor {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.card.income { background: #2e7d32; }
+.card.expense { background: #c62828; }
+.card.net { background: #1976d2; }
+.card.net.negativo { background: #c62828; }
