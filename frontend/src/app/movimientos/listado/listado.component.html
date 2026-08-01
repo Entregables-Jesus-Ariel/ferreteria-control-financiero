@@ -63,11 +63,39 @@
             <td>{{ movimiento.cancelled ? 'Anulado' : 'Activo' }}</td>
             <td class="acciones">
               <button type="button" class="link" (click)="verDetalle(movimiento)">Ver detalle</button>
-              <button type="button" class="link" (click)="editar(movimiento)">Editar</button>
+              @if (!movimiento.cancelled) {
+                <button type="button" class="link" (click)="editar(movimiento)">Editar</button>
+                <button type="button" class="link danger" (click)="pedirConfirmacionAnular(movimiento)">Anular</button>
+              }
             </td>
           </tr>
         }
       </tbody>
     </table>
+  }
+
+  @if (movimientoAAnular(); as movimiento) {
+    <div class="modal-overlay" (click)="cancelarAnulacion()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>Anular movimiento</h2>
+        <p>
+          ¿Seguro que deseas anular el movimiento de
+          <strong>{{ formatearValor(movimiento.amount_cents) }}</strong>
+          del {{ movimiento.date }}?
+        </p>
+        <p class="hint">El movimiento quedará marcado como "Anulado" pero seguirá visible en el listado.</p>
+
+        @if (anularErrorMsg()) {
+          <p class="error">{{ anularErrorMsg() }}</p>
+        }
+
+        <div class="modal-acciones">
+          <button type="button" (click)="cancelarAnulacion()" [disabled]="anulando()">Cancelar</button>
+          <button type="button" class="danger" (click)="confirmarAnulacion()" [disabled]="anulando()">
+            {{ anulando() ? 'Anulando...' : 'Sí, anular' }}
+          </button>
+        </div>
+      </div>
+    </div>
   }
 </div>
