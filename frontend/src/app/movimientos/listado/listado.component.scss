@@ -1,0 +1,92 @@
+.listado-container {
+  max-width: 900px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.filtros-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+}
+
+.campo label {
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.campo input,
+.campo select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.filtros-form button {
+  padding: 9px 16px;
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.hint {
+  color: #666;
+  font-size: 13px;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 13px;
+}
+
+.tabla-movimientos {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-movimientos th,
+.tabla-movimientos td {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.tabla-movimientos tr.cancelado {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.badge.income { background: #2e7d32; }
+.badge.expense { background: #c62828; }
+
+button.link {
+  background: none;
+  border: none;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 13px;
+  text-decoration: underline;
+  padding: 0;
+}

@@ -1,0 +1,40 @@
+<div class="detalle-container">
+  <button type="button" class="volver" (click)="volver()">&larr; Volver al listado</button>
+
+  <h1>Detalle del movimiento</h1>
+
+  @if (loading()) {
+    <p class="hint">Cargando...</p>
+  }
+
+  @if (errorMsg()) {
+    <p class="error">{{ errorMsg() }}</p>
+  }
+
+  @if (movimiento(); as m) {
+    <div class="ficha">
+      <div class="fila">
+        <span class="etiqueta">Fecha</span>
+        <span>{{ m.date }}</span>
+      </div>
+      <div class="fila">
+        <span class="etiqueta">Categoría</span>
+        <span class="badge" [class.income]="categoria()?.type === 'income'" [class.expense]="categoria()?.type === 'expense'">
+          {{ categoria()?.name ?? ('Categoría #' + m.category_id) }}
+        </span>
+      </div>
+      <div class="fila">
+        <span class="etiqueta">Valor</span>
+        <span>{{ formatearValor(m.amount_cents) }}</span>
+      </div>
+      <div class="fila">
+        <span class="etiqueta">Nota</span>
+        <span>{{ m.note || '—' }}</span>
+      </div>
+      <div class="fila">
+        <span class="etiqueta">Estado</span>
+        <span>{{ m.cancelled ? 'Anulado' : 'Activo' }}</span>
+      </div>
+    </div>
+  }
+</div>
