@@ -1,0 +1,59 @@
+.detalle-container {
+  max-width: 480px;
+  margin: 40px auto;
+  padding: 0 16px;
+}
+
+.volver {
+  background: none;
+  border: none;
+  color: #1976d2;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+  margin-bottom: 16px;
+}
+
+.hint {
+  color: #666;
+  font-size: 13px;
+}
+
+.error {
+  color: #d32f2f;
+  font-size: 13px;
+}
+
+.ficha {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.fila {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 14px;
+}
+
+.fila:last-child {
+  border-bottom: none;
+}
+
+.etiqueta {
+  color: #666;
+  font-size: 12px;
+  text-transform: uppercase;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.badge.income { background: #2e7d32; }
+.badge.expense { background: #c62828; }
