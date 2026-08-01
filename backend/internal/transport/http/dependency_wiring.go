@@ -17,6 +17,7 @@ type dependencies struct {
 	listMovement     *usecase.ListMovement
 	editMovement     *usecase.EditMovement
 	cancelMovement   *usecase.CancelMovement
+	getMovementAudit *usecase.GetMovementAudit
 	getPeriodSummary *usecase.GetPeriodSummary
 	listCategory     *usecase.ListCategory
 	createCategory   *usecase.CreateCategory
@@ -45,6 +46,7 @@ func buildDependencies(settings config.Config) (*dependencies, error) {
 		listMovement:     usecase.NewListMovement(movements),
 		editMovement:     usecase.NewEditMovement(movements, categories, audits),
 		cancelMovement:   usecase.NewCancelMovement(movements, audits),
+		getMovementAudit: usecase.NewGetMovementAudit(movements, audits),
 		getPeriodSummary: usecase.NewGetPeriodSummary(movements),
 		listCategory:     usecase.NewListCategory(categories),
 		createCategory:   usecase.NewCreateCategory(categories),
