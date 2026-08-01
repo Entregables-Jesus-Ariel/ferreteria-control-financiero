@@ -11,7 +11,7 @@
     <p class="error">{{ errorMsg() }}</p>
   }
 
-  @if (!errorMsg()) {
+  @if (!errorMsg() || successMsg()) {
     <form [formGroup]="form" (ngSubmit)="onSubmit()">
       <label for="date">Fecha</label>
       <input id="date" type="date" formControlName="date" />
@@ -40,6 +40,10 @@
 
       <label for="note">Nota</label>
       <textarea id="note" formControlName="note" rows="3"></textarea>
+
+      @if (successMsg()) {
+        <p class="success">{{ successMsg() }}</p>
+      }
 
       <button type="submit" [disabled]="guardando()">
         {{ guardando() ? 'Guardando...' : 'Guardar cambios' }}

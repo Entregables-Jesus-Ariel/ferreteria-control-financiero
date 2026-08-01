@@ -21,6 +21,10 @@ export class MovimientoService {
     return this.http.post<Movement>(this.baseUrl, request);
   }
 
+  update(id: number, request: CreateMovementRequest): Observable<Movement> {
+    return this.http.put<Movement>(`${this.baseUrl}/${id}`, request);
+  }
+
   list(params: ListMovementParams): Observable<Movement[]> {
     let httpParams = new HttpParams()
       .set('start', params.start)
