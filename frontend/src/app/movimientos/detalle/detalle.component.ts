@@ -2,7 +2,7 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MovimientoService } from '../movimiento.service';
-import { Movement } from '../movimiento.model';
+import { Movement, MovementAudit } from '../movimiento.model';
 import { CategoriaService } from '../../categorias/categoria.service';
 import { Category } from '../../categorias/categoria.model';
 
@@ -24,6 +24,10 @@ export class DetalleComponent implements OnInit {
   loading = signal(false);
   errorMsg = signal<string | null>(null);
 
+  auditoria = signal<MovementAudit[]>([]);
+  auditoriaLoading = signal(false);
+  auditoriaError = signal<string | null>(null);
+
   private origenQueryParams: Record<string, string | null> = {};
 
   ngOnInit(): void {
@@ -38,6 +42,7 @@ export class DetalleComponent implements OnInit {
     if (estado?.movimiento) {
       this.movimiento.set(estado.movimiento);
       this.cargarCategoria(estado.movimiento.category_id);
+      this.cargarAuditoria(estado.movimiento.id);
       return;
     }
 
@@ -65,6 +70,7 @@ export class DetalleComponent implements OnInit {
           this.errorMsg.set('Movimiento no encontrado');
         } else {
           this.cargarCategoria(encontrado.category_id);
+          this.cargarAuditoria(encontrado.id);
         }
       },
       error: () => {
@@ -82,8 +88,40 @@ export class DetalleComponent implements OnInit {
     });
   }
 
+  private cargarAuditoria(movementId: number): void {
+    this.auditoriaLoading.set(true);
+    this.auditoriaError.set(null);
+
+    this.movimientoService.getAudit(movementId).subscribe({
+      next: (entradas) => {
+        this.auditoria.set(entradas);
+        this.auditoriaLoading.set(false);
+      },
+      error: () => {
+        this.auditoriaLoading.set(false);
+        this.auditoriaError.set('No se pudo cargar el historial de auditoría');
+      }
+    });
+  }
+
   formatearValor(cents: number): string {
     return (cents / 100).toLocaleString('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 });
+  }
+
+  formatearFecha(iso: string): string {
+    return new Date(iso).toLocaleString('es-CO', {
+      dateStyle: 'medium',
+      timeStyle: 'short'
+    });
+  }
+
+  etiquetaAccion(action: MovementAudit['action']): string {
+    switch (action) {
+      case 'create': return 'Creación';
+      case 'update': return 'Edición';
+      case 'delete': return 'Anulación';
+      default: return action;
+    }
   }
 
   volver(): void {
