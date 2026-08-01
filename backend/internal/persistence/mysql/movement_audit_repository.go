@@ -4,6 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"ferreteria/internal/domain"
 )
@@ -54,7 +56,8 @@ func (r *MovementAuditRepository) ListByMovement(
 	movementID int64,
 ) ([]*domain.MovementAudit, error) {
 	const query = `
-		SELECT id, movement_id, changed_at, changed_by, action
+		SELECT id, movement_id, changed_at, changed_by,
+			old_amount, new_amount, old_note, new_note, action
 		FROM movement_audit
 		WHERE movement_id = ?
 		ORDER BY changed_at, id`
@@ -69,10 +72,38 @@ func (r *MovementAuditRepository) ListByMovement(
 	for rows.Next() {
 		var entry domain.MovementAudit
 		var action string
-		if err := rows.Scan(&entry.ID, &entry.MovementID, &entry.ChangedAt, &entry.ChangedBy, &action); err != nil {
+		var oldAmount, newAmount sql.NullString
+		var oldNote, newNote sql.NullString
+		if err := rows.Scan(
+			&entry.ID,
+			&entry.MovementID,
+			&entry.ChangedAt,
+			&entry.ChangedBy,
+			&oldAmount,
+			&newAmount,
+			&oldNote,
+			&newNote,
+			&action,
+		); err != nil {
 			return nil, fmt.Errorf("scan audit row: %w", err)
 		}
 		entry.Action = domain.AuditAction(action)
+		if amount, ok, err := decimalStringToAmount(oldAmount); err != nil {
+			return nil, fmt.Errorf("parse old_amount: %w", err)
+		} else if ok {
+			entry.OldAmount = &amount
+		}
+		if amount, ok, err := decimalStringToAmount(newAmount); err != nil {
+			return nil, fmt.Errorf("parse new_amount: %w", err)
+		} else if ok {
+			entry.NewAmount = &amount
+		}
+		if oldNote.Valid {
+			entry.OldNote = &oldNote.String
+		}
+		if newNote.Valid {
+			entry.NewNote = &newNote.String
+		}
 		entries = append(entries, &entry)
 	}
 	if err := rows.Err(); err != nil {
@@ -93,4 +124,42 @@ func optionalString(value *string) string {
 		return ""
 	}
 	return *value
+}
+
+// decimalStringToAmount parses a DECIMAL column such as "1234.56" back into
+// a domain.Amount expressed in whole cents. It returns ok=false when the
+// column was NULL, which happens for the side of the change that did not
+// apply (ej. a create entry has no old_amount).
+func decimalStringToAmount(value sql.NullString) (domain.Amount, bool, error) {
+	if !value.Valid {
+		return domain.Amount{}, false, nil
+	}
+	raw := value.String
+	negative := strings.HasPrefix(raw, "-")
+	if negative {
+		raw = raw[1:]
+	}
+	parts := strings.SplitN(raw, ".", 2)
+	whole, err := strconv.ParseInt(parts[0], 10, 64)
+	if err != nil {
+		return domain.Amount{}, false, fmt.Errorf("parse whole part %q: %w", raw, err)
+	}
+	var fraction int64
+	if len(parts) == 2 {
+		fractionDigits := parts[1]
+		if len(fractionDigits) < 2 {
+			fractionDigits = fractionDigits + strings.Repeat("0", 2-len(fractionDigits))
+		} else {
+			fractionDigits = fractionDigits[:2]
+		}
+		fraction, err = strconv.ParseInt(fractionDigits, 10, 64)
+		if err != nil {
+			return domain.Amount{}, false, fmt.Errorf("parse fraction part %q: %w", raw, err)
+		}
+	}
+	cents := whole*100 + fraction
+	if negative {
+		cents = -cents
+	}
+	return domain.AmountFromCents(cents), true, nil
 }

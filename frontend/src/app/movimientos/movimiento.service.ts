@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { CreateMovementRequest, Movement } from './movimiento.model';
+import { CreateMovementRequest, Movement, MovementAudit } from './movimiento.model';
 
 export interface ListMovementParams {
   start: string;
@@ -45,5 +45,9 @@ export class MovimientoService {
 
   anular(id: number): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${id}`);
+  }
+
+  getAudit(id: number): Observable<MovementAudit[]> {
+    return this.http.get<MovementAudit[]>(`${this.baseUrl}/${id}/audit`);
   }
 }

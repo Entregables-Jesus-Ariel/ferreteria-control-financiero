@@ -15,6 +15,7 @@ export const routes: Routes = [
     path: '',
     canActivate: [authGuard],
     children: [
+      { path: '', redirectTo: 'movimientos', pathMatch: 'full' },
       { path: 'categorias', component: CategoriasComponent },
       { path: 'movimientos/ingreso', component: RegistrarIngresoComponent },
       { path: 'movimientos/egreso', component: RegistrarEgresoComponent },
@@ -23,5 +24,6 @@ export const routes: Routes = [
       { path: 'movimientos', component: ListadoComponent },
       { path: 'resumen', component: ResumenComponent }
     ]
-  }
+  },
+  { path: '**', redirectTo: 'movimientos' }
 ];

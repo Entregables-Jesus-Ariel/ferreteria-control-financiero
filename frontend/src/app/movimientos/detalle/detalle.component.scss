@@ -57,3 +57,53 @@
 
 .badge.income { background: #2e7d32; }
 .badge.expense { background: #c62828; }
+
+.auditoria-titulo {
+  margin: 24px 0 12px;
+  font-size: 16px;
+}
+
+.auditoria-lista {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.auditoria-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+}
+
+.auditoria-cabecera {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.auditoria-accion {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.auditoria-accion.create { background: #2e7d32; }
+.auditoria-accion.update { background: #1976d2; }
+.auditoria-accion.delete { background: #c62828; }
+
+.auditoria-fecha {
+  color: #666;
+  font-size: 12px;
+}
+
+.auditoria-cambio {
+  display: flex;
+  justify-content: space-between;
+  padding: 4px 0;
+}
