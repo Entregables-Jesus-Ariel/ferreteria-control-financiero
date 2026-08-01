@@ -31,6 +31,15 @@
     <label for="note">Nota</label>
     <textarea id="note" formControlName="note" rows="3" placeholder="Ej. Ventas de mostrador"></textarea>
 
-    <button type="submit">Registrar ingreso</button>
+    @if (successMsg()) {
+      <p class="success">{{ successMsg() }}</p>
+    }
+    @if (errorMsg()) {
+      <p class="error">{{ errorMsg() }}</p>
+    }
+
+    <button type="submit" [disabled]="guardando()">
+      {{ guardando() ? 'Guardando...' : 'Registrar ingreso' }}
+    </button>
   </form>
 </div>
