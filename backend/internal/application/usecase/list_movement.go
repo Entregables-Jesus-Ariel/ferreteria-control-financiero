@@ -50,7 +50,10 @@ func (u *ListMovement) Execute(ctx context.Context, input ListMovementInput) ([]
 	return u.movements.List(ctx, port.MovementFilter{
 		Period:     period,
 		CategoryID: input.CategoryID,
-		Limit:      pageSize,
-		Offset:     (page - 1) * pageSize,
+		// El movimiento anulado se marca como tal pero permanece visible en
+		// el listado (HU-008), así que siempre se incluye.
+		IncludeCancelled: true,
+		Limit:            pageSize,
+		Offset:           (page - 1) * pageSize,
 	})
 }

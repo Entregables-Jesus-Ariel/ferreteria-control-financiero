@@ -36,5 +36,63 @@
         <span>{{ m.cancelled ? 'Anulado' : 'Activo' }}</span>
       </div>
     </div>
+
+    <h2 class="auditoria-titulo">Historial de auditoría</h2>
+
+    @if (auditoriaLoading()) {
+      <p class="hint">Cargando historial...</p>
+    }
+
+    @if (auditoriaError()) {
+      <p class="error">{{ auditoriaError() }}</p>
+    }
+
+    @if (!auditoriaLoading() && !auditoriaError() && auditoria().length === 0) {
+      <p class="hint">Sin cambios registrados.</p>
+    }
+
+    @if (auditoria().length > 0) {
+      <ul class="auditoria-lista">
+        @for (entrada of auditoria(); track entrada.id) {
+          <li class="auditoria-item">
+            <div class="auditoria-cabecera">
+              <span
+                class="auditoria-accion"
+                [class.create]="entrada.action === 'create'"
+                [class.update]="entrada.action === 'update'"
+                [class.delete]="entrada.action === 'delete'"
+              >
+                {{ etiquetaAccion(entrada.action) }}
+              </span>
+              <span class="auditoria-fecha">{{ formatearFecha(entrada.changed_at) }}</span>
+            </div>
+
+            @if (entrada.old_amount_cents !== undefined || entrada.new_amount_cents !== undefined) {
+              <div class="auditoria-cambio">
+                <span class="etiqueta">Valor</span>
+                <span>
+                  @if (entrada.old_amount_cents !== undefined) {
+                    {{ formatearValor(entrada.old_amount_cents) }} &rarr;
+                  }
+                  {{ entrada.new_amount_cents !== undefined ? formatearValor(entrada.new_amount_cents) : '—' }}
+                </span>
+              </div>
+            }
+
+            @if (entrada.old_note !== undefined || entrada.new_note !== undefined) {
+              <div class="auditoria-cambio">
+                <span class="etiqueta">Nota</span>
+                <span>
+                  @if (entrada.old_note !== undefined) {
+                    {{ entrada.old_note || '—' }} &rarr;
+                  }
+                  {{ entrada.new_note || '—' }}
+                </span>
+              </div>
+            }
+          </li>
+        }
+      </ul>
+    }
   }
 </div>
