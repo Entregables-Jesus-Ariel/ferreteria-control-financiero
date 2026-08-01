@@ -36,6 +36,10 @@ export class ListadoComponent implements OnInit {
   loading = signal(false);
   errorMsg = signal<string | null>(null);
 
+  movimientoAAnular = signal<Movement | null>(null);
+  anulando = signal(false);
+  anularErrorMsg = signal<string | null>(null);
+
   categoriasPorId = computed(() => {
     const mapa = new Map<number, Category>();
     for (const categoria of this.categorias()) {
@@ -131,6 +135,38 @@ export class ListadoComponent implements OnInit {
     this.router.navigate(['/movimientos/editar', movimiento.id], {
       state: { movimiento },
       queryParams: this.queryParamsActuales()
+    });
+  }
+
+  pedirConfirmacionAnular(movimiento: Movement): void {
+    this.movimientoAAnular.set(movimiento);
+    this.anularErrorMsg.set(null);
+  }
+
+  cancelarAnulacion(): void {
+    if (this.anulando()) return;
+    this.movimientoAAnular.set(null);
+  }
+
+  confirmarAnulacion(): void {
+    const movimiento = this.movimientoAAnular();
+    if (!movimiento) return;
+
+    this.anulando.set(true);
+    this.anularErrorMsg.set(null);
+
+    this.movimientoService.anular(movimiento.id).subscribe({
+      next: () => {
+        this.movimientos.update((lista) =>
+          lista.map((m) => (m.id === movimiento.id ? { ...m, cancelled: true } : m))
+        );
+        this.anulando.set(false);
+        this.movimientoAAnular.set(null);
+      },
+      error: () => {
+        this.anulando.set(false);
+        this.anularErrorMsg.set('No se pudo anular el movimiento');
+      }
     });
   }
 }
