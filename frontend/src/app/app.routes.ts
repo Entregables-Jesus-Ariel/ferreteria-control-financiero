@@ -4,6 +4,7 @@ import { authGuard } from './auth/auth.guard';
 import { CategoriasComponent } from './categorias/categorias.component';
 import { RegistrarIngresoComponent } from './movimientos/registrar-ingreso/registrar-ingreso.component';
 import { RegistrarEgresoComponent } from './movimientos/registrar-egreso/registrar-egreso.component';
+import { ListadoComponent } from './movimientos/listado/listado.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -13,7 +14,8 @@ export const routes: Routes = [
     children: [
       { path: 'categorias', component: CategoriasComponent },
       { path: 'movimientos/ingreso', component: RegistrarIngresoComponent },
-      { path: 'movimientos/egreso', component: RegistrarEgresoComponent }
+      { path: 'movimientos/egreso', component: RegistrarEgresoComponent },
+      { path: 'movimientos', component: ListadoComponent }
     ]
   }
 ];
