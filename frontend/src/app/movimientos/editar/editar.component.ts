@@ -25,7 +25,10 @@ export class EditarComponent implements OnInit {
   loading = signal(false);
   guardando = signal(false);
   errorMsg = signal<string | null>(null);
+  successMsg = signal<string | null>(null);
   movimientoId = signal<number | null>(null);
+
+  private origenQueryParams: Record<string, string | null> = {};
 
   form = this.fb.group({
     date: ['', Validators.required],
@@ -35,6 +38,13 @@ export class EditarComponent implements OnInit {
   });
 
   ngOnInit(): void {
+    const query = this.route.snapshot.queryParamMap;
+    this.origenQueryParams = {
+      start: query.get('start'),
+      end: query.get('end'),
+      category_id: query.get('category_id')
+    };
+
     this.categoriaService.list().subscribe({
       next: (categorias) => this.categorias.set(categorias)
     });
@@ -93,10 +103,39 @@ export class EditarComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    // TODO [HU-007]: conectar con MovimientoService.update (PUT /api/movements/{id})
+
+    const id = this.movimientoId();
+    if (!id) return;
+
+    this.guardando.set(true);
+    this.successMsg.set(null);
+    this.errorMsg.set(null);
+
+    const { date, categoryId, amount, note } = this.form.value;
+
+    this.movimientoService.update(id, {
+      category_id: categoryId!,
+      date: date!,
+      amount_cents: Math.round(amount! * 100),
+      note: note ?? ''
+    }).subscribe({
+      next: () => {
+        this.guardando.set(false);
+        this.successMsg.set('Movimiento actualizado correctamente');
+      },
+      error: () => {
+        this.guardando.set(false);
+        this.errorMsg.set('No se pudo actualizar el movimiento');
+      }
+    });
   }
 
   cancelar(): void {
-    this.router.navigate(['/movimientos']);
+    const queryParams: Record<string, string> = {};
+    if (this.origenQueryParams['start']) queryParams['start'] = this.origenQueryParams['start']!;
+    if (this.origenQueryParams['end']) queryParams['end'] = this.origenQueryParams['end']!;
+    if (this.origenQueryParams['category_id']) queryParams['category_id'] = this.origenQueryParams['category_id']!;
+
+    this.router.navigate(['/movimientos'], { queryParams });
   }
 }
